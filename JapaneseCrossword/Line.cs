@@ -8,116 +8,141 @@ namespace JapaneseCrossword
 {
     class Line
     {
-        public List<CellState> cells;
-        public List<int> blocks; 
-        private bool type;
-        private bool[] canBeColored, canBeEmpty;
+        public List<Cell> Cells;
+        public List<int> Blocks; 
         public int size;
-        public bool Incorrect;
 
-        public Line(List<CellState> cells, List<int> blocks )
+        public Line(List<Cell> cells, List<int> blocks )
         {
-            this.type = type;
-            this.cells = cells;
-            this.blocks = blocks;
+            this.Cells = cells;
+            this.Blocks = blocks;
             this.size = cells.Count;
-            this.Incorrect = false;
         }
 
         public bool TryInstallBlock(int blockNumber, int startCell)
         {
-            if (startCell + blocks[blockNumber] > size)
+//            if (blockNumber == size)
+//            {
+//                if (ColoredCellBeforeTheBlock(startCell))
+//                    return false;
+//                return true;
+//            }
+                
+            if (startCell + Blocks[blockNumber] > size)
                 return false;
-            for (var i = startCell; i < startCell + blocks[blockNumber]; i++)
-                if (cells[i] == CellState.Blank)
-                    return false;
-
-            if (blockNumber == 0)
+            if (EmptyCellInsideTheBlock(Blocks[blockNumber], startCell)) return false;
+            if (blockNumber == 0 && ColoredCellBeforeTheBlock(startCell)) return false; ///
+            
+            if (blockNumber < Blocks.Count - 1)
             {
-                for (var i = 0; i < startCell; i++)
-                    if (cells[i] == CellState.Colored)
-                        return false;
-            }
-
-            if (blockNumber < blocks.Count - 1)
-            {
-                bool result = false;
-                for (var nextStart = startCell + blocks[blockNumber] + 1;
-                    nextStart < cells.Count - blocks[blockNumber + 1] + 1;
+                var correctArrangementExists = false;
+                for (var nextStart = startCell + Blocks[blockNumber] + 1;
+                    nextStart < Cells.Count - Blocks[blockNumber + 1] + 1;
                     nextStart++)
                 {
-                    if (cells[nextStart - 1] == CellState.Colored)
+                    if (Cells[nextStart - 1].State == CellState.Colored)
                         break;
                     if (TryInstallBlock(blockNumber + 1, nextStart))
                     {
-                        result = true;
-                        for (var i = startCell; i < startCell + blocks[blockNumber]; i++)
-                            canBeColored[i] = true;
-                        for (var i = startCell + blocks[blockNumber]; i < nextStart; i++)
-                            canBeEmpty[i] = true;
+                        correctArrangementExists = true;
+                        RefreshPossibleStates(Blocks[blockNumber], startCell, nextStart);
                         if (blockNumber == 0)
                             for (var i = 0; i < startCell; i++)
-                                canBeEmpty[i] = true;                       
+                                Cells[i].CanBeEmpty = true;                       
                     }
                 }
-                return result;
+                return correctArrangementExists;
             }
-            else
-            {
-                for (var i = startCell + blocks[blockNumber]; i < cells.Count; i++)
-                    if (cells[i] == CellState.Colored)
-                        return false;
-                for (var i = startCell; i < startCell + blocks[blockNumber]; i++)
-                    canBeColored[i] = true;
-                for (var i = startCell + blocks[blockNumber]; i < cells.Count; i++)
-                    canBeEmpty[i] = true;
-                if (blockNumber == 0)
-                    for (var i = 0; i < startCell; i++)
-                        canBeEmpty[i] = true;
-                return true;
-            }
+           
 
+            if (ColoredCellsAfterTheBlock(Blocks[blockNumber], startCell)) return false;
+            RefreshPossibleStates(Blocks[blockNumber], startCell, size);            
+            if (blockNumber == 0)
+                for (var i = 0; i < startCell; i++)
+                    Cells[i].CanBeEmpty = true;
+            return true;
+        }
+
+
+        private bool ColoredCellsAfterTheBlock(int blockSize, int startCell)
+        {
+            for (var i = startCell + blockSize; i < size; i++)
+                if (Cells[i].State == CellState.Colored)
+                    return true;
+            return false;
+        }
+
+        private void RefreshPossibleStates(int blockSize, int start, int nextStart)
+        {
+            for (var i = start; i < start + blockSize; i++)
+                Cells[i].CanBeColored = true;
+            for (var i = start + blockSize; i < nextStart; i++)
+                Cells[i].CanBeEmpty = true;
+        }
+
+        private bool ColoredCellBeforeTheBlock(int startCell)
+        {
+            for (var i = 0; i < startCell; i++)
+                if (Cells[i].State == CellState.Colored)
+                    return true;
+            return false;
+        }
+
+        private bool EmptyCellInsideTheBlock(int blockSize, int startCell)
+        {
+            for (var i = startCell; i < startCell + blockSize; i++)
+                if (Cells[i].State == CellState.Empty)
+                    return true;
+            return false;
         }
 
 
         public bool TryFillTheLine()
         {
-            canBeColored = new bool[size];
-            canBeEmpty = new bool[size];
-            for (var i = 0; i < size; i++)
-            {
-                canBeColored[i] = false;
-                canBeEmpty[i] = false;
-            }
-
-            //var critical = blocks.Sum() + blocks.Count - 1;
-//            for (var start = 0; start <= size - blocks.Last(); start++)
-//                TryInstallBlock(0, start);
+            InitializeCanBeMassives();
+            var criticalSum = Blocks.Sum() + Blocks.Count - 1;
             var existsCorrestArrangement =
-                Enumerable.Range(0, size - blocks.Last() + 1).Count(i => TryInstallBlock(0, i)) > 0;
+                Enumerable.Range(0, size - criticalSum + 1).Count(i => TryInstallBlock(0, i)) > 0;
             if (!existsCorrestArrangement)
-                throw new Exception();
+                throw new IncorrectCrosswordException();
+            
+            return RefreshLine();
+        }
 
-            bool needRefresh = false;
 
-            for (var i = 0; i < size; i++)
+
+        private bool RefreshLine()
+        {
+            var needRefresh = false;
+
+            foreach (var cell in Cells)
             {
-                if (canBeColored[i] && !canBeEmpty[i] && cells[i] != CellState.Colored)
+                if (cell.CanBeOnlyColored() && cell.State != CellState.Colored)
                 {
-                    cells[i] = CellState.Colored;
+                    cell.State = CellState.Colored;
                     needRefresh = true;
                 }
-                if (!canBeColored[i] && canBeEmpty[i] && cells[i] != CellState.Blank)
+                if (cell.CanBeOnlyEmpty() && cell.State != CellState.Empty)
                 {
-                    cells[i] = CellState.Blank;
+                    cell.State = CellState.Empty;
                     needRefresh = true;
                 }
-                if (!canBeColored[i] && !canBeEmpty[i])
+                if (!cell.CanHaveAnyState())
                 {
-                    //return false; тут что-то нужно делать, кроссворд плохой
+                    throw new IncorrectCrosswordException();
                 }
             }
             return needRefresh;
+        }
+
+
+        private void InitializeCanBeMassives()
+        {
+            foreach (var cell in Cells)
+            {
+                cell.CanBeColored = false;
+                cell.CanBeEmpty = false;
+            }
         }
     }
 }

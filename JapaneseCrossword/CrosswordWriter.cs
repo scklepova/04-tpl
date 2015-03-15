@@ -22,9 +22,9 @@ namespace JapaneseCrossword
             {
                 foreach (var row in crossword.rows)
                 {
-                    foreach (var cell in row.cells)
+                    foreach (var cell in row.Cells)
                     {
-                        writer.Write(cell.ToSymbol());
+                        writer.Write(cell.State.ToSymbol());
                     }
                     writer.Write(Environment.NewLine);
                 }

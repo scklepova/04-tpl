@@ -24,7 +24,7 @@ namespace JapaneseCrossword
                 .Select(
                     i => new Line(
                         Enumerable.Range(0, columnsCount)
-                            .Select(j => CellState.Unknown)
+                            .Select(j => new Cell())
                             .ToList(),
                         rowsBlocks[i]
                         )
@@ -34,7 +34,7 @@ namespace JapaneseCrossword
                 .Select(
                     i => new Line(
                         Enumerable.Range(0, rowsCount)
-                            .Select(j => CellState.Unknown)
+                            .Select(j => new Cell())
                             .ToList(),
                         columnsBlocks[i]
                         )
@@ -57,13 +57,13 @@ namespace JapaneseCrossword
         public void MergeResults(List<Line> from, List<Line> to)
         {
             for(var i = 0; i < from.Count; i++)
-                for (var j = 0; j < from[i].cells.Count; j++)
-                    to[j].cells[i] = from[i].cells[j];
+                for (var j = 0; j < from[i].Cells.Count; j++)
+                    to[j].Cells[i] = from[i].Cells[j];
         }
 
         public bool PartiallySolved()
         {
-            return rows.Any(row => row.cells.Any(cell => cell == CellState.Unknown));
+            return rows.Any(row => row.Cells.Any(cell => cell.State == CellState.Unknown));
         }
 
         

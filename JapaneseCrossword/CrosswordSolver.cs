@@ -21,7 +21,7 @@ namespace JapaneseCrossword
             {
                 crossword.Solve();
             }
-            catch (Exception e)
+            catch (IncorrectCrosswordException e)
             {
                 return SolutionStatus.IncorrectCrossword;
             }
@@ -43,7 +43,7 @@ namespace JapaneseCrossword
             if (crossword.PartiallySolved())
                 return SolutionStatus.PartiallySolved;
             return SolutionStatus.Solved;
-            //throw new NotImplementedException();
+            
         }
     }
 }

@@ -15,7 +15,7 @@ namespace JapaneseCrossword
                 case CellState.Colored:
                     return '*';
                     
-                case CellState.Blank:
+                case CellState.Empty:
                     return '.';
             }
             return '?';
@@ -32,7 +32,7 @@ namespace JapaneseCrossword
         /// <description>
         /// Точно незакрашена
         /// </description>
-        Blank,
+        Empty,
 
         /// <description>
         /// Неизвестно
