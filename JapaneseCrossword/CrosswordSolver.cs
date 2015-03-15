@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace JapaneseCrossword
 {
@@ -11,24 +13,19 @@ namespace JapaneseCrossword
             {
                 var reader = new CrosswordReader(inputFilePath);
                 crossword = reader.Read();
+                SolveCrossword(crossword);
+                if (crossword.Incorrect)
+                    return SolutionStatus.IncorrectCrossword;
+            }
+            catch (IncorrectCrosswordException e)
+            {
+                return SolutionStatus.IncorrectCrossword;
             }
             catch (Exception e)
             {
                 return SolutionStatus.BadInputFilePath;
             }
 
-            try
-            {
-                crossword.Solve();
-            }
-            catch (IncorrectCrosswordException e)
-            {
-                return SolutionStatus.IncorrectCrossword;
-            }
-
-            if(crossword.Incorrect)
-                return SolutionStatus.IncorrectCrossword;
-            
 
             try
             {
@@ -40,10 +37,28 @@ namespace JapaneseCrossword
                 return SolutionStatus.BadOutputFilePath;
             }
 
-            if (crossword.PartiallySolved())
-                return SolutionStatus.PartiallySolved;
-            return SolutionStatus.Solved;
-            
+            return crossword.PartiallySolved() ? SolutionStatus.PartiallySolved : SolutionStatus.Solved;
         }
+
+        private void SolveCrossword(Crossword crossword)
+        {
+            var needRefresh = true;
+            while (needRefresh)
+            {
+                needRefresh = crossword.rows.Count(row => row.TryFillTheLine()) > 0;
+                MergeResults(crossword.rows, crossword.columns);
+                needRefresh = needRefresh || crossword.columns.Count(column => column.TryFillTheLine()) > 0;
+                MergeResults(crossword.columns, crossword.rows);
+            }
+        }
+
+        private void MergeResults(List<Line> from, List<Line> to)
+        {
+            for(var i = 0; i < from.Count; i++)
+                for (var j = 0; j < from[i].Cells.Count; j++)
+                    to[j].Cells[i] = from[i].Cells[j];
+        }
+        
+
     }
 }

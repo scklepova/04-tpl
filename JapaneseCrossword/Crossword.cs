@@ -8,7 +8,6 @@ namespace JapaneseCrossword
 {
     class Crossword
     {
-        //public CellState[,] field;
         public List<Line> rows, columns; 
         public int rowsCount;
         public int columnsCount;
@@ -40,25 +39,6 @@ namespace JapaneseCrossword
                         )
                 ).ToList();
             this.Incorrect = false;
-        }
-
-        public void Solve()
-        {
-            bool needRefresh = true;
-            while (needRefresh)
-            {
-                needRefresh = rows.Count(row => row.TryFillTheLine()) > 0;
-                MergeResults(rows, columns);
-                needRefresh = needRefresh || columns.Count(column => column.TryFillTheLine()) > 0;
-                MergeResults(columns, rows);
-            }
-        }
-
-        public void MergeResults(List<Line> from, List<Line> to)
-        {
-            for(var i = 0; i < from.Count; i++)
-                for (var j = 0; j < from[i].Cells.Count; j++)
-                    to[j].Cells[i] = from[i].Cells[j];
         }
 
         public bool PartiallySolved()
