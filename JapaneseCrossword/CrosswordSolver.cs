@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace JapaneseCrossword
 {
-    public class CrosswordSolver : ICrosswordSolver
+    public class CrosswordSolver : CrosswordSolverBase
     {
-        public SolutionStatus Solve(string inputFilePath, string outputFilePath)
+        public override SolutionStatus Solve(string inputFilePath, string outputFilePath)
         {
             Crossword crossword;
             try
@@ -45,19 +45,14 @@ namespace JapaneseCrossword
             var needRefresh = true;
             while (needRefresh)
             {
-                needRefresh = crossword.rows.Count(row => row.TryFillTheLine()) > 0;
+                needRefresh = crossword.rows.Count(row => row.WasChanged()) > 0;
                 MergeResults(crossword.rows, crossword.columns);
-                needRefresh = needRefresh || crossword.columns.Count(column => column.TryFillTheLine()) > 0;
+                needRefresh = needRefresh || crossword.columns.Count(column => column.WasChanged()) > 0;
                 MergeResults(crossword.columns, crossword.rows);
             }
         }
 
-        private void MergeResults(List<Line> from, List<Line> to)
-        {
-            for(var i = 0; i < from.Count; i++)
-                for (var j = 0; j < from[i].Cells.Count; j++)
-                    to[j].Cells[i] = from[i].Cells[j];
-        }
+       
         
 
     }

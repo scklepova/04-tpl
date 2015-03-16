@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace JapaneseCrossword
+﻿namespace JapaneseCrossword
 {
     public static class Extensions
     {
@@ -24,19 +18,8 @@ namespace JapaneseCrossword
 
     public enum CellState
     {
-        /// <description>
-        /// Клетка точно закрашена
-        /// </description>
         Colored,
-
-        /// <description>
-        /// Точно незакрашена
-        /// </description>
         Empty,
-
-        /// <description>
-        /// Неизвестно
-        /// </description>
         Unknown
     }
 }

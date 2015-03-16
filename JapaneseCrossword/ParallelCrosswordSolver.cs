@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Threading;
 
 namespace JapaneseCrossword
 {
-    class ParallelCrosswordSolver : ICrosswordSolver
+    class ParallelCrosswordSolver : CrosswordSolverBase
     {
-        public SolutionStatus Solve(string inputFilePath, string outputFilePath)
+        public override SolutionStatus Solve(string inputFilePath, string outputFilePath)
         {
             Crossword crossword;
             try
@@ -46,14 +44,14 @@ namespace JapaneseCrossword
             var needRefresh = true;
             while (needRefresh)
             {
-                //needRefresh = crossword.rows.Count(row => row.TryFillTheLine()) > 0;
+                //needRefresh = crossword.rows.Count(row => row.LineChanged()) > 0;
                 
-                var t = Task.WhenAll(crossword.rows.Select(row => Task.Run(() => row.TryFillTheLine())).ToArray());
+                var t = Task.WhenAll(crossword.rows.Select(row => Task.Run(() => row.WasChanged())).ToArray());
                 t.IgnoreExceptions().Wait();
                 needRefresh = t.Result.Any(i => i);             
                 MergeResults(crossword.rows, crossword.columns);
-                //needRefresh = needRefresh || crossword.columns.Count(column => column.TryFillTheLine()) > 0;
-                t = Task.WhenAll(crossword.columns.Select(column => Task.Run(() => column.TryFillTheLine())).ToArray());
+                //needRefresh = needRefresh || crossword.columns.Count(column => column.LineChanged()) > 0;
+                t = Task.WhenAll(crossword.columns.Select(column => Task.Run(() => column.WasChanged())).ToArray());
                 t.IgnoreExceptions().Wait();
                 
                 needRefresh = needRefresh || t.Result.Any(i => i);
@@ -61,12 +59,6 @@ namespace JapaneseCrossword
             }
         }
 
-        private void MergeResults(List<Line> from, List<Line> to)
-        {
-            for (var i = 0; i < from.Count; i++)
-                for (var j = 0; j < from[i].Cells.Count; j++)
-                    to[j].Cells[i] = from[i].Cells[j];
-        }
     }
 
     public static class TaskExtensions

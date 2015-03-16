@@ -51,7 +51,7 @@
     <Compile Include="CrosswordSolver.cs" />
     <Compile Include="CrosswordSolverTests.cs" />
     <Compile Include="CrosswordWriter.cs" />
-    <Compile Include="ICrosswordSolver.cs" />
+    <Compile Include="CrosswordSolverBase.cs" />
     <Compile Include="IncorrectCrosswordException.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="ParallelCrosswordSolver.cs" />

@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JapaneseCrossword
 {
-    class Line
+    public class Line
     {
         public List<Cell> Cells;
         public List<int> Blocks; 
         public int size;
+        private bool wasChanged;
 
         public Line(List<Cell> cells, List<int> blocks )
         {
-            this.Cells = cells;
-            this.Blocks = blocks;
-            this.size = cells.Count;
+            Cells = cells;
+            Blocks = blocks;
+            size = cells.Count;
+            wasChanged = true;
         }
 
         public bool TryInstallBlock(int blockNumber, int startCell)
@@ -97,42 +96,46 @@ namespace JapaneseCrossword
         }
 
 
-        public bool TryFillTheLine()
+        public void TryFillTheLine()
         {
             InitializeCanBeMassives();
             var criticalSum = Blocks.Sum() + Blocks.Count - 1;
-            var existsCorrestArrangement =
+            var existsCorreсtArrangement =
                 Enumerable.Range(0, size - criticalSum + 1).Count(i => TryInstallBlock(0, i)) > 0;
-            if (!existsCorrestArrangement)
+            if (!existsCorreсtArrangement)
                 throw new IncorrectCrosswordException();
             
-            return RefreshLine();
+            RefreshLine();
         }
 
-
-
-        private bool RefreshLine()
+        public bool WasChanged()
         {
-            var needRefresh = false;
+            TryFillTheLine();
+            return wasChanged;
+        }
+
+        private void RefreshLine()
+        {
+            wasChanged = false;
 
             foreach (var cell in Cells)
             {
                 if (cell.CanBeOnlyColored() && cell.State != CellState.Colored)
                 {
                     cell.State = CellState.Colored;
-                    needRefresh = true;
+                    wasChanged = true;
                 }
                 if (cell.CanBeOnlyEmpty() && cell.State != CellState.Empty)
                 {
                     cell.State = CellState.Empty;
-                    needRefresh = true;
+                    wasChanged = true;
                 }
                 if (!cell.CanHaveAnyState())
                 {
                     throw new IncorrectCrosswordException();
                 }
             }
-            return needRefresh;
+            
         }
 
 

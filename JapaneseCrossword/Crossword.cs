@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JapaneseCrossword
 {
     class Crossword
     {
-        public List<Line> rows, columns; 
+        public List<Line> rows;
+        public List<Line> columns; 
         public int rowsCount;
         public int columnsCount;
         
@@ -17,9 +15,9 @@ namespace JapaneseCrossword
 
         public Crossword(List<List<int>> rowsBlocks, List<List<int>> columnsBlocks)
         {
-            this.rowsCount = rowsBlocks.Count;
-            this.columnsCount = columnsBlocks.Count;
-            this.rows = Enumerable.Range(0, rowsCount)
+            rowsCount = rowsBlocks.Count;
+            columnsCount = columnsBlocks.Count;
+            rows = Enumerable.Range(0, rowsCount)
                 .Select(
                     i => new Line(
                         Enumerable.Range(0, columnsCount)
@@ -29,7 +27,7 @@ namespace JapaneseCrossword
                         )
                 ).ToList();
 
-            this.columns = Enumerable.Range(0, columnsCount)
+            columns = Enumerable.Range(0, columnsCount)
                 .Select(
                     i => new Line(
                         Enumerable.Range(0, rowsCount)
@@ -38,7 +36,7 @@ namespace JapaneseCrossword
                         columnsBlocks[i]
                         )
                 ).ToList();
-            this.Incorrect = false;
+            Incorrect = false;
         }
 
         public bool PartiallySolved()

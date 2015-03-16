@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace JapaneseCrossword
 {
-    class Cell
+    public class Cell
     {
         public CellState State;
         public bool CanBeColored;
