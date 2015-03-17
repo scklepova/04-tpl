@@ -58,6 +58,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Support\SolutionStatus.cs" />
+    <Compile Include="Tests\Line_should.cs" />
     <Compile Include="Tests\ParallelSolverTests.cs" />
   </ItemGroup>
   <ItemGroup>

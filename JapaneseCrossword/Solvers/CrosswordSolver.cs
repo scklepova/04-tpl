@@ -9,13 +9,11 @@ namespace JapaneseCrossword
         public override SolutionStatus Solve(string inputFilePath, string outputFilePath)
         {
             Crossword crossword;
+            var reader = new CrosswordReader(inputFilePath);
             try
-            {
-                var reader = new CrosswordReader(inputFilePath);
+            {               
                 crossword = reader.Read();
                 SolveCrossword(crossword);
-                if (crossword.Incorrect)
-                    return SolutionStatus.IncorrectCrossword;
             }
             catch (IncorrectCrosswordException e)
             {
@@ -26,10 +24,9 @@ namespace JapaneseCrossword
                 return SolutionStatus.BadInputFilePath;
             }
 
-
+            var writer = new CrosswordWriter(outputFilePath);
             try
-            {
-                var writer = new CrosswordWriter(outputFilePath);
+            {              
                 writer.Write(crossword);
             }
             catch (Exception e)

@@ -8,13 +8,13 @@ namespace JapaneseCrossword
         public List<Cell> Cells;
         public List<int> Blocks; 
         public int size;
-        private bool wasChanged;
+        public  bool wasChanged;
 
-        public Line(List<Cell> cells, List<int> blocks )
+        public Line(int size, List<int> blocks )
         {
-            Cells = cells;
+            Cells = Enumerable.Range(0, size).Select(i => new Cell()).ToList();
             Blocks = blocks;
-            size = cells.Count;
+            this.size = size;
             wasChanged = true;
         }
 
@@ -98,7 +98,12 @@ namespace JapaneseCrossword
 
         public void TryPlaceBlocks()
         {
-            ClearPosiibleStates();
+            ClearPossibleStates();
+            if (Blocks.Count == 0)
+            {
+                MarkAllCellsEmpty();
+                return;
+            }
             var criticalSum = Blocks.Sum() + Blocks.Count - 1;
             var existsCorreсtArrangement =
                 Enumerable.Range(0, size - criticalSum + 1).Count(i => ExistsCorrectArrangment(0, i)) > 0;
@@ -108,13 +113,22 @@ namespace JapaneseCrossword
             ChangeLine();
         }
 
+        private void MarkAllCellsEmpty()
+        {
+            foreach (var cell in Cells)
+            {
+                cell.State = CellState.Empty;
+            }
+            wasChanged = true;
+        }
+
         public bool WasChanged()
         {
             TryPlaceBlocks();
             return wasChanged;
         }
 
-        private void ChangeLine()
+        public void ChangeLine()
         {
             wasChanged = false;
 
@@ -139,7 +153,7 @@ namespace JapaneseCrossword
         }
 
 
-        private void ClearPosiibleStates()
+        private void ClearPossibleStates()
         {
             foreach (var cell in Cells)
             {

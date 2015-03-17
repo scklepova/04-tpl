@@ -11,8 +11,7 @@ namespace JapaneseCrossword
         [TestFixtureSetUp]
         public void SetUp()
         {
-            //solver = new CrosswordSolver();
-            solver = new ParallelCrosswordSolver();
+            solver = new CrosswordSolver();         
         }
 
         [Test]

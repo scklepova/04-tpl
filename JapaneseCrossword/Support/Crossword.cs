@@ -10,7 +10,7 @@ namespace JapaneseCrossword
         public int rowsCount;
         public int columnsCount;
         
-        public bool Incorrect;
+        
         
 
         public Crossword(List<List<int>> rowsBlocks, List<List<int>> columnsBlocks)
@@ -18,25 +18,13 @@ namespace JapaneseCrossword
             rowsCount = rowsBlocks.Count;
             columnsCount = columnsBlocks.Count;
             rows = Enumerable.Range(0, rowsCount)
-                .Select(
-                    i => new Line(
-                        Enumerable.Range(0, columnsCount)
-                            .Select(j => new Cell())
-                            .ToList(),
-                        rowsBlocks[i]
-                        )
-                ).ToList();
+                .Select( i => new Line(columnsCount, rowsBlocks[i]) )
+                .ToList();
 
             columns = Enumerable.Range(0, columnsCount)
-                .Select(
-                    i => new Line(
-                        Enumerable.Range(0, rowsCount)
-                            .Select(j => new Cell())
-                            .ToList(),
-                        columnsBlocks[i]
-                        )
-                ).ToList();
-            Incorrect = false;
+                .Select( i => new Line(rowsCount, columnsBlocks[i]))
+                .ToList();
+            
         }
 
         public bool PartiallySolved()
