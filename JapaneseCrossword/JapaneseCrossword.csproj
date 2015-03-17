@@ -49,6 +49,7 @@
     <Compile Include="Support\Crossword.cs" />
     <Compile Include="IO Managers\CrosswordReader.cs" />
     <Compile Include="Solvers\CrosswordSolver.cs" />
+    <Compile Include="Support\CrosswordTimer.cs" />
     <Compile Include="Tests\CrosswordSolverTests.cs" />
     <Compile Include="IO Managers\CrosswordWriter.cs" />
     <Compile Include="Solvers\CrosswordSolverBase.cs" />

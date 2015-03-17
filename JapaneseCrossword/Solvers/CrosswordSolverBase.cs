@@ -5,6 +5,7 @@ namespace JapaneseCrossword
     public abstract class CrosswordSolverBase
     {
         public abstract SolutionStatus Solve(string inputFilePath, string outputFilePath);
+        public abstract void SolveCrossword(Crossword crossword);
 
         public void MergeResults(List<Line> from, List<Line> to)
         {
@@ -12,6 +13,7 @@ namespace JapaneseCrossword
                 for (var j = 0; j < from[i].Cells.Count; j++)
                     to[j].Cells[i] = from[i].Cells[j];
         }
+
 
     }
 }

@@ -37,7 +37,7 @@ namespace JapaneseCrossword
             return crossword.PartiallySolved() ? SolutionStatus.PartiallySolved : SolutionStatus.Solved;
         }
 
-        private void SolveCrossword(Crossword crossword)
+        public override void SolveCrossword(Crossword crossword)
         {
             var needRefresh = true;
             while (needRefresh)

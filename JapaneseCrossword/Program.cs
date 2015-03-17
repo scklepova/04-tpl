@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using JapaneseCrossword.Support;
 
 namespace JapaneseCrossword
 {
@@ -7,7 +8,8 @@ namespace JapaneseCrossword
     {
         static void Main(string[] args)
         {
-            
+            var timer = new CrosswordTimer();
+            timer.NoteTheTime(@"TestFiles\Flower.txt");
         }
 
         

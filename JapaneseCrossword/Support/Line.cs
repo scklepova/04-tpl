@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace JapaneseCrossword
@@ -12,7 +13,14 @@ namespace JapaneseCrossword
 
         public Line(int size, List<int> blocks )
         {
-            Cells = Enumerable.Range(0, size).Select(i => new Cell()).ToList();
+            try
+            {
+                Cells = Enumerable.Range(0, size).Select(i => new Cell()).ToList();
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new IncorrectCrosswordException();
+            }
             Blocks = blocks;
             this.size = size;
             wasChanged = true;
