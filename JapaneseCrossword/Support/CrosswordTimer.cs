@@ -10,7 +10,7 @@ namespace JapaneseCrossword.Support
     class CrosswordTimer
     {
         
-        public void NoteTheTime(string inputFilePath)
+        public void NoteTheTime(string inputFilePath, int timesToRepeat)
         {
             var iterateSolver = new CrosswordSolver();
             var parallelSolver = new ParallelCrosswordSolver();
@@ -26,20 +26,29 @@ namespace JapaneseCrossword.Support
                 return;
             }
 
-            WatchOnSolver(iterateSolver, crossword);
-            WatchOnSolver(parallelSolver, crossword);
+            WatchOnSolver(iterateSolver, crossword, timesToRepeat);
+            WatchOnSolver(parallelSolver, crossword, timesToRepeat);
 
         }
 
-        private void WatchOnSolver(CrosswordSolverBase solver, Crossword inputCrossword)
+        private void WatchOnSolver(CrosswordSolverBase solver, Crossword crossword, int timesToRepeat)
         {
-            var stopwatch = new Stopwatch();
-            var crossword = inputCrossword;            
+            var stopwatch = new Stopwatch();            
             stopwatch.Start();
-            solver.SolveCrossword(crossword);           
+            for (int i = 0; i < timesToRepeat; i++)
+            {
+                solver.SolveCrossword(crossword);
+                CleanStates(crossword);
+            }          
             stopwatch.Stop();
-            Console.WriteLine("{0} works {1} milliseconds", solver, stopwatch.ElapsedMilliseconds);
+            Console.WriteLine("{0} works {1} milliseconds on {2} times", solver, stopwatch.ElapsedMilliseconds, timesToRepeat);
            
+        }
+
+        private void CleanStates(Crossword crossword)
+        {
+            crossword.rows.Select(row => row.Cells.Select(cell => cell.State = CellState.Unknown)).ToArray();
+            crossword.columns.Select(column => column.Cells.Select(cell => cell.State = CellState.Unknown)).ToArray();
         }
     }
 }
