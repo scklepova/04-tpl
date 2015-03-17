@@ -18,7 +18,7 @@ namespace JapaneseCrossword
             wasChanged = true;
         }
 
-        public bool TryInstallBlock(int blockNumber, int startCell)
+        public bool ExistsCorrectArrangment(int blockNumber, int startCell)
         {
 //            if (blockNumber == size)
 //            {
@@ -41,14 +41,14 @@ namespace JapaneseCrossword
                 {
                     if (Cells[nextStart - 1].State == CellState.Colored)
                         break;
-                    if (TryInstallBlock(blockNumber + 1, nextStart))
-                    {
-                        correctArrangementExists = true;
-                        RefreshPossibleStates(Blocks[blockNumber], startCell, nextStart);
-                        if (blockNumber == 0)
-                            for (var i = 0; i < startCell; i++)
-                                Cells[i].CanBeEmpty = true;                       
-                    }
+                    if (!ExistsCorrectArrangment(blockNumber + 1, nextStart)) continue;
+                    correctArrangementExists = true;
+
+                    RefreshPossibleStates(Blocks[blockNumber], startCell, nextStart);
+                    if (blockNumber != 0) continue;
+
+                    for (var i = 0; i < startCell; i++)
+                        Cells[i].CanBeEmpty = true;
                 }
                 return correctArrangementExists;
             }
@@ -96,25 +96,25 @@ namespace JapaneseCrossword
         }
 
 
-        public void TryFillTheLine()
+        public void TryPlaceBlocks()
         {
-            InitializeCanBeMassives();
+            ClearPosiibleStates();
             var criticalSum = Blocks.Sum() + Blocks.Count - 1;
             var existsCorreсtArrangement =
-                Enumerable.Range(0, size - criticalSum + 1).Count(i => TryInstallBlock(0, i)) > 0;
+                Enumerable.Range(0, size - criticalSum + 1).Count(i => ExistsCorrectArrangment(0, i)) > 0;
             if (!existsCorreсtArrangement)
                 throw new IncorrectCrosswordException();
             
-            RefreshLine();
+            ChangeLine();
         }
 
         public bool WasChanged()
         {
-            TryFillTheLine();
+            TryPlaceBlocks();
             return wasChanged;
         }
 
-        private void RefreshLine()
+        private void ChangeLine()
         {
             wasChanged = false;
 
@@ -139,7 +139,7 @@ namespace JapaneseCrossword
         }
 
 
-        private void InitializeCanBeMassives()
+        private void ClearPosiibleStates()
         {
             foreach (var cell in Cells)
             {

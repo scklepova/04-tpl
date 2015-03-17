@@ -44,20 +44,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cell.cs" />
-    <Compile Include="CellState.cs" />
-    <Compile Include="Crossword.cs" />
-    <Compile Include="CrosswordReader.cs" />
-    <Compile Include="CrosswordSolver.cs" />
-    <Compile Include="CrosswordSolverTests.cs" />
-    <Compile Include="CrosswordWriter.cs" />
-    <Compile Include="CrosswordSolverBase.cs" />
-    <Compile Include="IncorrectCrosswordException.cs" />
-    <Compile Include="Line.cs" />
-    <Compile Include="ParallelCrosswordSolver.cs" />
+    <Compile Include="Support\Cell.cs" />
+    <Compile Include="Support\CellState.cs" />
+    <Compile Include="Support\Crossword.cs" />
+    <Compile Include="IO Managers\CrosswordReader.cs" />
+    <Compile Include="Solvers\CrosswordSolver.cs" />
+    <Compile Include="Tests\CrosswordSolverTests.cs" />
+    <Compile Include="IO Managers\CrosswordWriter.cs" />
+    <Compile Include="Solvers\CrosswordSolverBase.cs" />
+    <Compile Include="Support\IncorrectCrosswordException.cs" />
+    <Compile Include="Support\Line.cs" />
+    <Compile Include="Solvers\ParallelCrosswordSolver.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SolutionStatus.cs" />
+    <Compile Include="Support\SolutionStatus.cs" />
+    <Compile Include="Tests\ParallelSolverTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
