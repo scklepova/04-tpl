@@ -1,6 +1,4 @@
-﻿
-
-namespace JapaneseCrossword
+﻿namespace JapaneseCrossword
 {
     public class Cell
     {

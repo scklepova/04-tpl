@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace JapaneseCrossword
@@ -44,7 +43,7 @@ namespace JapaneseCrossword
             {
                 needRefresh = crossword.rows.Count(row => row.WasChanged()) > 0;
                 MergeResults(crossword.rows, crossword.columns);
-                needRefresh = needRefresh || crossword.columns.Count(column => column.WasChanged()) > 0;
+                needRefresh = crossword.columns.Count(column => column.WasChanged()) > 0 || needRefresh;
                 MergeResults(crossword.columns, crossword.rows);
             }
         }

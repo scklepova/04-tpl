@@ -27,48 +27,64 @@ namespace JapaneseCrossword
         }
 
         public bool ExistsCorrectArrangment(int blockNumber, int startCell)
-        {
-//            if (blockNumber == size)
-//            {
-//                if (ColoredCellBeforeTheBlock(startCell))
-//                    return false;
-//                return true;
-//            }
-                
-            if (startCell + Blocks[blockNumber] > size)
-                return false;
+        {          
+            if (startCell + Blocks[blockNumber] > size) return false;
             if (EmptyCellInsideTheBlock(Blocks[blockNumber], startCell)) return false;
-            if (blockNumber == 0 && ColoredCellBeforeTheBlock(startCell)) return false; ///
-            
-            if (blockNumber < Blocks.Count - 1)
+            if (FirstBlock(blockNumber) && ColoredCellBeforeTheBlock(startCell)) return false;
+
+            if (!LastBlock(blockNumber))
             {
                 var correctArrangementExists = false;
                 for (var nextStart = startCell + Blocks[blockNumber] + 1;
                     nextStart < Cells.Count - Blocks[blockNumber + 1] + 1;
                     nextStart++)
                 {
-                    if (Cells[nextStart - 1].State == CellState.Colored)
-                        break;
+                    if (PreviousCellIsColored(nextStart)) break;
                     if (!ExistsCorrectArrangment(blockNumber + 1, nextStart)) continue;
+
                     correctArrangementExists = true;
+                    UpdatePossibleStates(Blocks[blockNumber], startCell, nextStart);
 
-                    RefreshPossibleStates(Blocks[blockNumber], startCell, nextStart);
-                    if (blockNumber != 0) continue;
-
-                    for (var i = 0; i < startCell; i++)
-                        Cells[i].CanBeEmpty = true;
+                    if (FirstBlock(blockNumber)) 
+                        PreviousCellsCanBeEmpty(startCell);
                 }
                 return correctArrangementExists;
             }
-           
 
             if (ColoredCellsAfterTheBlock(Blocks[blockNumber], startCell)) return false;
-            RefreshPossibleStates(Blocks[blockNumber], startCell, size);            
-            if (blockNumber == 0)
-                for (var i = 0; i < startCell; i++)
-                    Cells[i].CanBeEmpty = true;
+            UpdatePossibleStates(Blocks[blockNumber], startCell, size);
+            if (FirstBlock(blockNumber))
+                PreviousCellsCanBeEmpty(startCell);
             return true;
         }
+
+        private void PreviousCellsCanBeEmpty(int startCell)
+        {
+            UpdatePossibleStates(0, 0, startCell);
+        }
+
+
+
+        private bool PreviousCellIsColored(int nextStart)
+        {
+            return Cells[nextStart - 1].State == CellState.Colored;
+        }
+
+
+
+        private bool LastBlock(int blockNumber)
+        {
+            return blockNumber == Blocks.Count - 1;
+        }
+
+
+
+        private static bool FirstBlock(int blockNumber)
+        {
+            return blockNumber == 0;
+        }
+
+
 
 
         private bool ColoredCellsAfterTheBlock(int blockSize, int startCell)
@@ -79,13 +95,17 @@ namespace JapaneseCrossword
             return false;
         }
 
-        private void RefreshPossibleStates(int blockSize, int start, int nextStart)
+
+
+        private void UpdatePossibleStates(int blockSize, int start, int nextStart)
         {
             for (var i = start; i < start + blockSize; i++)
                 Cells[i].CanBeColored = true;
             for (var i = start + blockSize; i < nextStart; i++)
                 Cells[i].CanBeEmpty = true;
         }
+
+
 
         private bool ColoredCellBeforeTheBlock(int startCell)
         {
@@ -94,6 +114,8 @@ namespace JapaneseCrossword
                     return true;
             return false;
         }
+
+
 
         private bool EmptyCellInsideTheBlock(int blockSize, int startCell)
         {

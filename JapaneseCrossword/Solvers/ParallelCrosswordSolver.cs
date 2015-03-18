@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,9 +9,9 @@ namespace JapaneseCrossword
         public override SolutionStatus Solve(string inputFilePath, string outputFilePath)
         {
             Crossword crossword;
+            var reader = new CrosswordReader(inputFilePath);
             try
-            {
-                var reader = new CrosswordReader(inputFilePath);
+            {               
                 crossword = reader.Read();
                 SolveCrossword(crossword);
             }
@@ -24,11 +23,11 @@ namespace JapaneseCrossword
             {
                 return SolutionStatus.BadInputFilePath;
             }
-        
 
+
+            var writer = new CrosswordWriter(outputFilePath);
             try
             {
-                var writer = new CrosswordWriter(outputFilePath);
                 writer.Write(crossword);
             }
             catch (Exception e)
@@ -44,13 +43,11 @@ namespace JapaneseCrossword
             var needRefresh = true;
             while (needRefresh)
             {
-                //needRefresh = crossword.rows.Count(row => row.LineChanged()) > 0;
-                
                 var t = Task.WhenAll(crossword.rows.Select(row => Task.Run(() => row.WasChanged())).ToArray());
                 t.IgnoreExceptions().Wait();
                 needRefresh = t.Result.Any(i => i);             
                 MergeResults(crossword.rows, crossword.columns);
-                //needRefresh = needRefresh || crossword.columns.Count(column => column.LineChanged()) > 0;
+               
                 t = Task.WhenAll(crossword.columns.Select(column => Task.Run(() => column.WasChanged())).ToArray());
                 t.IgnoreExceptions().Wait();
                 
