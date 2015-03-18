@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JapaneseCrossword.Support
 {
@@ -15,40 +13,31 @@ namespace JapaneseCrossword.Support
             var iterateSolver = new CrosswordSolver();
             var parallelSolver = new ParallelCrosswordSolver();
             var reader = new CrosswordReader(inputFilePath);
-            Crossword crossword;
-            try
-            {
-                crossword = reader.Read();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                return;
-            }
 
-            WatchOnSolver(iterateSolver, crossword, timesToRepeat);
-            WatchOnSolver(parallelSolver, crossword, timesToRepeat);
+            WatchOnSolver(iterateSolver, reader, timesToRepeat);
+            WatchOnSolver(parallelSolver, reader, timesToRepeat);
 
         }
 
-        private void WatchOnSolver(CrosswordSolverBase solver, Crossword crossword, int timesToRepeat)
+        private void WatchOnSolver(CrosswordSolverBase solver, CrosswordReader reader, int timesToRepeat)
         {
+            var crosswords = new List<Crossword>();
+            try
+            {
+                crosswords = Enumerable.Range(0, timesToRepeat).Select(i => reader.Read()).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            Console.WriteLine("Timer is working...");
             var stopwatch = new Stopwatch();            
             stopwatch.Start();
-            for (int i = 0; i < timesToRepeat; i++)
-            {
-                solver.SolveCrossword(crossword);
-                CleanStates(crossword);
-            }          
+            crosswords.ForEach(solver.SolveCrossword);
             stopwatch.Stop();
             Console.WriteLine("{0} works {1} milliseconds on {2} times", solver, stopwatch.ElapsedMilliseconds, timesToRepeat);
            
-        }
-
-        private void CleanStates(Crossword crossword)
-        {
-            crossword.rows.Select(row => row.Cells.Select(cell => cell.State = CellState.Unknown)).ToArray();
-            crossword.columns.Select(column => column.Cells.Select(cell => cell.State = CellState.Unknown)).ToArray();
         }
     }
 }

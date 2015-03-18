@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using JapaneseCrossword.Support;
+﻿using JapaneseCrossword.Support;
 
 namespace JapaneseCrossword
 {
@@ -9,7 +7,7 @@ namespace JapaneseCrossword
         static void Main(string[] args)
         {
             var timer = new CrosswordTimer();
-            timer.NoteTheTime(@"TestFiles\Flower.txt", 100);
+            timer.NoteTheTime(@"TestFiles\Flower.txt", 5);
         }
 
         
