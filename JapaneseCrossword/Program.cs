@@ -7,7 +7,7 @@ namespace JapaneseCrossword
         static void Main(string[] args)
         {
             var timer = new CrosswordTimer();
-            timer.NoteTheTime(@"TestFiles\Flower.txt", 5);
+            timer.NoteTheTime(@"TestFiles\Flower.txt", 10);
         }
 
         

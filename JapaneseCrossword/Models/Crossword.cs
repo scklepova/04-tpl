@@ -33,9 +33,21 @@ namespace JapaneseCrossword
 
         }
 
+        public Crossword(List<Line> rows, List<Line> columns)
+        {
+            this.rows = rows;
+            this.columns = columns;
+        }
+
         public bool PartiallySolved()
         {
             return rows.Any(row => row.Cells.Any(cell => cell.State == CellState.Unknown));
+        }
+
+        public void Clean()
+        {
+            rows.ForEach(line => line.Cells.ForEach(cell => cell.State = CellState.Unknown));
+            columns.ForEach(line => line.Cells.ForEach(cell => cell.State = CellState.Unknown));
         }
 
         
