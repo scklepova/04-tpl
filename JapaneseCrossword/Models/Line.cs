@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JapaneseCrossword.Models;
 
 namespace JapaneseCrossword
 {
     public class Line
     {
         public List<Cell> Cells;
-        public List<int> Blocks; 
+        public List<int> Blocks;
         public int size;
-        public  bool wasChanged;
+        public bool wasChanged;
+        private Memorizer memorizer;
 
-        public Line(int size, List<int> blocks )
+        public Line(int size, List<int> blocks)
         {
             try
             {
@@ -24,10 +26,11 @@ namespace JapaneseCrossword
             Blocks = blocks;
             this.size = size;
             wasChanged = true;
+            
         }
 
         public bool ExistsCorrectArrangment(int blockNumber, int startCell)
-        {          
+        {
             if (startCell + Blocks[blockNumber] > size) return false;
             if (EmptyCellInsideTheBlock(Blocks[blockNumber], startCell)) return false;
             if (FirstBlock(blockNumber) && ColoredCellBeforeTheBlock(startCell)) return false;
@@ -35,23 +38,47 @@ namespace JapaneseCrossword
             if (!LastBlock(blockNumber))
             {
                 var correctArrangementExists = false;
+                memorizer.Memorize(startCell, blockNumber, PossibleStartState.Impossible);
                 for (var nextStart = startCell + Blocks[blockNumber] + 1;
                     nextStart < Cells.Count - Blocks[blockNumber + 1] + 1;
                     nextStart++)
                 {
-                    if (PreviousCellIsColored(nextStart)) break;
-                    if (!ExistsCorrectArrangment(blockNumber + 1, nextStart)) continue;
+                    if (memorizer.RememberState(nextStart, blockNumber + 1))
+                    {
+                        if (memorizer.GetState(nextStart, blockNumber + 1) == PossibleStartState.Impossible) continue;
+                        UpdatePossibleStates(Blocks[blockNumber], startCell, nextStart);
+                        if (FirstBlock(blockNumber))
+                            PreviousCellsCanBeEmpty(startCell);
+                        correctArrangementExists = true;
+                    }
+                    else
+                    {
+                        if (PreviousCellIsColored(nextStart)) break;
+                        if (!ExistsCorrectArrangment(blockNumber + 1, nextStart))
+                        {
+                            memorizer.Memorize(nextStart, blockNumber + 1, PossibleStartState.Impossible);
+                            continue;
+                        }
 
-                    correctArrangementExists = true;
-                    UpdatePossibleStates(Blocks[blockNumber], startCell, nextStart);
+                        correctArrangementExists = true;
+                        memorizer.Memorize(nextStart, blockNumber + 1, PossibleStartState.Possible);
+                        memorizer.Memorize(startCell, blockNumber, PossibleStartState.Possible);
+                        UpdatePossibleStates(Blocks[blockNumber], startCell, nextStart);
 
-                    if (FirstBlock(blockNumber)) 
-                        PreviousCellsCanBeEmpty(startCell);
+                        if (FirstBlock(blockNumber))
+                            PreviousCellsCanBeEmpty(startCell);
+                    }
                 }
                 return correctArrangementExists;
             }
 
-            if (ColoredCellsAfterTheBlock(Blocks[blockNumber], startCell)) return false;
+
+            if (ColoredCellsAfterTheBlock(Blocks[blockNumber], startCell))
+            {
+                memorizer.Memorize(startCell, blockNumber, PossibleStartState.Impossible);
+                return false;
+            }
+            memorizer.Memorize(startCell, blockNumber, PossibleStartState.Possible);
             UpdatePossibleStates(Blocks[blockNumber], startCell, size);
             if (FirstBlock(blockNumber))
                 PreviousCellsCanBeEmpty(startCell);
@@ -134,12 +161,13 @@ namespace JapaneseCrossword
                 MarkAllCellsEmpty();
                 return;
             }
+            memorizer = new Memorizer(size, Blocks.Count);
             var criticalSum = Blocks.Sum() + Blocks.Count - 1;
             var existsCorreсtArrangement =
                 Enumerable.Range(0, size - criticalSum + 1).Count(i => ExistsCorrectArrangment(0, i)) > 0;
             if (!existsCorreсtArrangement)
                 throw new IncorrectCrosswordException();
-            
+
             ChangeLine();
         }
 
@@ -179,7 +207,7 @@ namespace JapaneseCrossword
                     throw new IncorrectCrosswordException();
                 }
             }
-            
+
         }
 
 

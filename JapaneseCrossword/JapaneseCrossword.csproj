@@ -48,6 +48,8 @@
     <Compile Include="Models\CellState.cs" />
     <Compile Include="Models\Crossword.cs" />
     <Compile Include="IO Managers\CrosswordReader.cs" />
+    <Compile Include="Models\Memorizer.cs" />
+    <Compile Include="Models\PossibleStartState.cs" />
     <Compile Include="Solvers\CrosswordSolver.cs" />
     <Compile Include="Models\CrosswordTimer.cs" />
     <Compile Include="Tests\CrosswordSolverTests.cs" />

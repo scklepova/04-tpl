@@ -82,5 +82,15 @@ namespace JapaneseCrossword
             Assert.AreEqual(SolutionStatus.PartiallySolved, solutionStatus);
             CollectionAssert.AreEqual(File.ReadAllText(correctOutputFilePath), File.ReadAllText(outputFilePath));
         }
+
+        [Test]
+        public void SuperBig()
+        {
+            var inputFilePath = @"TestFiles\SuperBig.txt";
+            var outputFilePath = Path.GetRandomFileName();
+
+            var solutionStatus = solver.Solve(inputFilePath, outputFilePath);
+            Assert.AreEqual(SolutionStatus.Solved, solutionStatus);
+        }
     }
 }
