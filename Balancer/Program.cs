@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -46,6 +47,11 @@ namespace Proxy
 		    var page = await GetResponseAsync(query);
 		    if (page != null)
 		    {
+		        if (SupportDeflateCompressing(context))
+		        {
+		            page = await DeflateCompress(page);
+		            context.Response.AddHeader("Content-Encoding", "deflate");
+		        }
 		        await context.Response.OutputStream.WriteAsync(page, 0, page.Length);		        
 		        log.InfoFormat("{0}: {1} sent back to {2}", requestId, 0, remoteEndPoint);
 		    }
@@ -57,10 +63,27 @@ namespace Proxy
 		}
 
 
-	    private static bool SupportDeflate(HttpListenerContext context)
+	    private static bool SupportDeflateCompressing(HttpListenerContext context)
 	    {
-	        return context.Request.Headers["Accept-Encoding"] == "deflate";
+	        return context.Request.Headers["Accept-Encoding"].Contains("deflate");
 	    }
+
+        private static async Task<byte[]> DeflateCompress(byte[] page)
+        {
+        	using (var originalStream = new MemoryStream(page))
+        	{
+        	    using (var compressedStream = new MemoryStream())
+        	    {
+        	        using (var deflateStream = new DeflateStream(compressedStream, CompressionMode.Compress))
+        	        {
+        	            await originalStream.CopyToAsync(deflateStream);
+        	        }
+                    return compressedStream.ToArray();
+        	    }
+                 
+        	}
+        }
+
 
 	    private static async Task<byte[]> GetResponseAsync(string query)
 	    {
