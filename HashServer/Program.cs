@@ -19,10 +19,17 @@ namespace HashServer
 				var listener = new Listener(port, "method", OnContextAsync);
 				listener.Start();
 
-				var listenerSync = new ListenerSync(port, "methodSync", OnContext);
-				listenerSync.Start();
+                var listener1 = new Listener(port + 1, "method", OnContextAsync);
+                listener1.Start();
+
+                var listener2 = new Listener(port + 2, "method", OnContextAsync);
+                listener2.Start();
+                
+//				var listenerSync = new ListenerSync(port, "methodSync", OnContext);
+//				listenerSync.Start();
 
 				log.InfoFormat("Server started!");
+                //Console.WriteLine("Sever started on port {0}", port);
 				new ManualResetEvent(false).WaitOne();
 			}
 			catch(Exception e)
@@ -75,7 +82,7 @@ namespace HashServer
 				return hasher.ComputeHash(data);
 		}
 
-		private const int port = 20000;
+		private const int port = 20001;
 		private static readonly byte[] Key = Encoding.UTF8.GetBytes("Контур.Шпора");
 		private static readonly ILog log = LogManager.GetLogger(typeof(Program));
 	}
