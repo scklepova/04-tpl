@@ -51,12 +51,13 @@ namespace Proxy
 		        {
 		            context.Response.AddHeader("Content-Encoding", "deflate");
 		            await WriteDeflateCompressedAsync(page, context.Response.OutputStream);
+                    log.InfoFormat("deflate");
 		        }
 		        else
 		        {
 		            await context.Response.OutputStream.WriteAsync(page, 0, page.Length);
-		            log.InfoFormat("{0}: {1} sent back to {2}", requestId, 0, remoteEndPoint);
 		        }
+                log.InfoFormat("{0}: {1} sent back to {2}", requestId, 0, remoteEndPoint);
 		    }
 		    else
 		    {
@@ -68,11 +69,11 @@ namespace Proxy
 
 	    private static bool SupportDeflateCompressing(HttpListenerContext context)
 	    {
-	        return context.Request.Headers["Accept-Encoding"].Contains("deflate");
+	        return context.Request.Headers["Accept-Encoding"] != null && context.Request.Headers["Accept-Encoding"].Contains("deflate");
 	    }
 
 
-        private static async Task WriteDeflateCompressedAsync(byte[] page, Stream stream)
+	    private static async Task WriteDeflateCompressedAsync(byte[] page, Stream stream)
         {
             using (var originalStream = new MemoryStream(page)) 
             {
@@ -86,7 +87,7 @@ namespace Proxy
 
 	    private static async Task<byte[]> GetResponseAsync(string query)
 	    {
-	        const int timeout = 1000*2;
+	        const int timeout = 1000*5;
 	        var serverNumber = -1;
 
 	        while (NextServerExists(serverNumber))
